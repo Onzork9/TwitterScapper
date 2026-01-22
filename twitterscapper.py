@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from fp.fp import FreeProxy 
 import sqlite3
+from dotenv import load_dotenv
+load_dotenv()
 
 class WebBot:
     def __init__(self, headless=False, download_location=None):
@@ -139,41 +141,35 @@ class WebBot:
         self.logout_x()
         time.sleep(random.uniform(2, 5))
         
-
     def login_to_x(self):
-        """Example of finding the username field on X using text-based XPATH."""
         self._driver.get("https://x.com/i/flow/login")
-        
-        # Give the page a moment to load its complex Javascript
         time.sleep(9) 
-        username = 'akhilsharma31820@gmail.com'
+        
+        # Use os.getenv to pull from the .env file
+        email = os.getenv("X_EMAIL")
+        username = os.getenv("X_USERNAME")
+        password = os.getenv("X_PASSWORD")
+
         try:
-            # X uses 'name' attributes, but here is how you find it by text logic
-            # This looks for an input where the label or placeholder contains 'Phone, email, or username'
             user_input = self._driver.find_element(By.XPATH, "//input[contains(@autocomplete, 'username')]")
-            user_input.click()
-            user_input.send_keys(username)
+            user_input.send_keys(email)
             user_input.send_keys(Keys.ENTER)
-            print(f"Successfully entered: {username}")
-            
             time.sleep(6)
             
-            username_input_head = self._driver.find_element(By.XPATH, "//h1[contains(@role, 'heading')]")
-            if 'enter your phone number or username' == username_input_head.text.lower():
-                
-                username_input = self._driver.find_element(By.XPATH, "//input[contains(@name, 'text')]")
-                username_input.click()
-                username_input.send_keys('@akhil_shar46999')
-                username_input.send_keys(Keys.ENTER)
+            # Check for secondary username verification
+            header = self._driver.find_element(By.XPATH, "//h1[contains(@role, 'heading')]")
+            if 'phone number or username' in header.text.lower():
+                extra_input = self._driver.find_element(By.XPATH, "//input[contains(@name, 'text')]")
+                extra_input.send_keys(username)
+                extra_input.send_keys(Keys.ENTER)
                 time.sleep(4.5)
             
-            user_pasword = self._driver.find_element(By.XPATH, "//input[contains(@type, 'password')]")
-            user_pasword.click()
-            user_pasword.send_keys('Akhil@2000')
-            user_pasword.send_keys(Keys.ENTER)
+            pass_input = self._driver.find_element(By.XPATH, "//input[contains(@type, 'password')]")
+            pass_input.send_keys(password)
+            pass_input.send_keys(Keys.ENTER)
         except Exception as e:
-            print(f"Could not find login field: {e}")
-
+            print(f"Login failed: {e}")
+            
     def format_metric(self, text):
         """Converts '13K', '1.2M', etc. to integers."""
         if not text or text.strip() == "":
