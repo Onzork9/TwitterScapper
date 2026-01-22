@@ -1,0 +1,7 @@
+undetected-chromedriver
+selenium
+free-proxy
+pandas
+scikit-learn
+matplotlib
+numpy
